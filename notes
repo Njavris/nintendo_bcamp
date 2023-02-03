@@ -1,0 +1,92 @@
+Big News!
+
+The SETI program has received a series of messages from Alpha Centauri. The most frequent message seems to be:
+541a4231 5d324646 27219a26 12497b0e 724eddcb 0e131617 9521bedf 55544dc7
+
+
+It is not known why these messages are encoded, but there is a good chance that the Alpha Centaurians are trying to evaluate our cognitive abilities before establishing advanced contact.
+Our best engineers are working to decode these messages, and they've already succeeded at identifying the program that the Centaurians use to encode the messages. This program takes a size and a list of numbers as inputs. It then outputs the encoded message (see the pseudo-code below).
+But so far, no one has been able to decode the messages. We are well aware that this task is by far the hardest that we’ve encountered, and that only a true NERD will be able to pull it off!
+
+
+Rules:
+Here is a pseudo-code version of the encoding program:
+
+READ size
+READ size / 16 integers in array a
+WRITE size / 16 zeros in array b
+
+For i from 0 to size - 1:
+    For j from 0 to size - 1:
+        b[(i+j)/32] ^= ((a[i/32] >> (i%32)) & (a[j/32 + size/32] >> (j%32)) & 1) << ((i+j)%32)
+
+PRINT b
+
+
+You can download a C++ version of the program here.
+The goal is to determine the series of numbers entered (array a) from the encoded output of the program (array b). The numbers – input and output – should be displayed in hexadecimal, 8 characters padded with 0 (for example, 42 would be displayed as 0000002a).
+If you pass the output of your program as input to the encoder above, you should obtain the input provided to your program.
+If there are several possible decoded values, you should display all the possibilities in alphabetical order.
+
+
+Input
+Line 1: size S
+Line 2: N1 integers in hexadecimal format, separated by blank spaces
+Output
+N2 integers in hexadecimal format, representing the decoded message.
+
+Constraints
+0 < S <= 256
+0 < N1 <= 16
+0 < N2 <= 32
+
+
+Example
+Input
+32
+46508fb7 6677e201
+Output
+b0c152f9 ebf2831f
+ebf2831f b0c152f9
+
+Input
+32
+000073af 00000000
+Output
+00000001 000073af
+
+Input
+32
+738377c1 00000000
+Output
+00000001 738377c1
+
+Input
+32
+46508fb7 6677e201
+Output
+b0c152f9 ebf2831f
+
+Input
+64
+f3268b49 661859eb 0b324559 65ee6bda
+Output
+0cf5c2bf 9aba68ef c18fb79b de70eef7
+
+Input
+128
+a91db473 fcea8db4 f3bb434a 8dba2f16 51abc87e 92c44759 5c1a16d3 6111c6f4
+Output
+a30d28bd bda19675 3f95d074 b6f69434 c58f4047 d73fe36a 24be2846 e2ebe432
+
+Input
+256
+4af6fc33 39029380 465c5267 c72f6a8b 0906e6d0 ca60550f 14a5e47c 42ad10fb 4a3bb446 bb74360a 5ea02b9c 23c68553 3fade253 e270ba24 39e141ad 6c38c43d
+Output
+320a18d5 b61b13f6 1aaaa61c 0afe... 6cc9659d dc503569 ef4d0ef5 73b746c5 b8fb36d3 7616e9d6 b21251c4
+
+
+
+https://www.ams.org/journals/mcom/1969-23-108/S0025-5718-1969-0257039-X/S0025-5718-1969-0257039-X.pdf
+http://www.ee.unb.ca/cgi-bin/tervo/calc.pl
+https://www.diva-portal.org/smash/get/diva2:414578/FULLTEXT01.pdf
