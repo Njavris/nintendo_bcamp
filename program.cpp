@@ -102,8 +102,13 @@ static inline void shl(int sz, uint32_t *poly, int bits) {
 	}
 }
 
-static inline void opGF2(int sz, const uint32_t *p1, const uint32_t *p2, uint32_t *res) {
+static inline void bit(int sz, uint32_t *poly, int bit) {
+	poly[bit / SZ] |= 1 << (bit % SZ);
+}
+
+static inline int opGF2(int sz, const uint32_t *p1, const uint32_t *p2, uint32_t *res) {
 	uint32_t t1[MAX_SZ], t2[MAX_SZ];
+	int ret = 0;
 	int o1 = pol_ord(sz, p1);
 	int o2 = pol_ord(sz, p2);
 	cpy(sz, t1, p1);
@@ -117,6 +122,7 @@ static inline void opGF2(int sz, const uint32_t *p1, const uint32_t *p2, uint32_
 	memset(res, 0, (sz / 32) * sizeof(uint32_t));
 	for (int i = 0; i < sz / SZ; i++)
 		res[i] = t1[i] ^ t2[i];
+	return o1 - o2;
 }
 
 void egcd(int sz, const uint32_t *f, uint32_t *res) {
@@ -153,7 +159,26 @@ void egcd(int sz, const uint32_t *f, uint32_t *res) {
 }
 
 void div(int sz, const uint32_t *divnd, const uint32_t *divor, uint32_t *quot) {
+	uint32_t tmp[2][MAX_SZ];
+	uint32_t *t1 = tmp[0], *t2 = tmp[1];
 	memset(quot, 0, (sz / SZ) * sizeof(uint32_t));
+	cpy(sz, t1, divnd);
+#ifdef DBG
+	printf("Division:\n");
+#endif
+	do {
+		int r;
+		uint32_t *t = t2;
+		t2 = t1;
+		t1 = t;
+		r = opGF2(sz, t2, divor, t1);
+		quot[r / SZ] |= 1 << (r % SZ);
+#ifdef DBG
+		pr_poly(sz, divor);
+		printf("----------------------------------- %d\n", r);
+		pr_poly(sz, t1);
+#endif
+	} while (!(pol_ord(sz, t1) < 0));
 };
 
 int main() {
@@ -167,10 +192,13 @@ int main() {
 //	pr_poly(64, output);
 //	printf("%08x %08x\n", output[0], output[1]);
 
-	uint32_t gcd[2], f[2] = { 0x00027fb3 /* 0x17 */, 0 };
+	uint32_t gcd[2], f[2] = { 0x00027fb3 /* 0x17 */, 0 }, q[2];
 	pr_poly(64, f);
 	egcd(64, f, gcd);
 	pr_poly(64, gcd);
+
+	div(64, f, gcd, q);
+	pr_poly(64, q);
 
 
 	return 0;
