@@ -166,20 +166,36 @@ void div(int sz, const uint32_t *divnd, const uint32_t *divor, uint32_t *quot) {
 #ifdef DBG
 	printf("Division:\n");
 #endif
-	do {
+	while (!(pol_ord(sz, t1) < 0)) {
 		int r;
 		uint32_t *t = t2;
 		t2 = t1;
 		t1 = t;
 		r = opGF2(sz, t2, divor, t1);
+		if (r < 0)
+			break;
 		quot[r / SZ] |= 1 << (r % SZ);
 #ifdef DBG
 		pr_poly(sz, divor);
 		printf("----------------------------------- %d\n", r);
 		pr_poly(sz, t1);
 #endif
-	} while (!(pol_ord(sz, t1) < 0));
+	};
 };
+
+void decode(int sz, uint32_t *f) {
+	uint32_t gcd[MAX_SZ], q[MAX_SZ];
+	int rsz = 2 * sz;
+	pr_poly(rsz, f);
+	egcd(rsz, f, gcd);
+	pr_poly(rsz, gcd);
+
+	div(rsz, f, gcd, q);
+	pr_poly(rsz, q);
+	printf("f: %08x %08x\n", f[0], f[1]);
+	printf("GCD %08x %08x\n", gcd[0], gcd[1]);
+	printf("Q %08x %08x\n", q[0], q[1]);
+}
 
 int main() {
 	run_tests();
@@ -192,13 +208,10 @@ int main() {
 //	pr_poly(64, output);
 //	printf("%08x %08x\n", output[0], output[1]);
 
-	uint32_t gcd[2], f[2] = { 0x00027fb3 /* 0x17 */, 0 }, q[2];
-	pr_poly(64, f);
-	egcd(64, f, gcd);
-	pr_poly(64, gcd);
-
-	div(64, f, gcd, q);
-	pr_poly(64, q);
+	uint32_t f[2] = { 0x00027fb3 /* 0x17 */, 0 };
+//	decode(32, f);
+pr_bits(tests[3].sz, tests[3].enc);
+	decode(tests[3].sz, tests[3].enc);
 
 
 	return 0;
